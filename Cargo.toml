@@ -4,3 +4,8 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
+secp256k1 = { version = "0.28", features = ["rand-std"] }
+ripemd = "0.1"
+base58 = "0.2"
+sha2 = "0.10"
+bs58 = "0.4"
