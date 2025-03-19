@@ -5,6 +5,7 @@ edition = "2024"
 
 [dependencies]
 secp256k1 = { version = "0.28", features = ["rand-std"] }
+rustc-hash = "2.1.1"
 ripemd = "0.1"
 base58 = "0.2"
 sha2 = "0.10"
