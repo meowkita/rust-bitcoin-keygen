@@ -4,13 +4,13 @@ use std::sync::{
     atomic::{AtomicBool, AtomicU64, Ordering},
 };
 
-use crate::{address, keypair};
+use crate::{address, keypair, log_info};
 
 pub fn register_graceful_shutdown(stop_flag: &Arc<AtomicBool>) {
     let stop_flag = Arc::clone(&stop_flag);
 
     ctrlc::set_handler(move || {
-        println!("[ INFO] Received shutdown signal...");
+        log_info!("Received shutdown signal...");
         stop_flag.store(true, Ordering::Relaxed);
     })
     .expect("[ERROR] Failed to set a Ctrl+C handler");
@@ -28,17 +28,17 @@ pub fn spawn(
 
         let total = counter.fetch_add(1, Ordering::Relaxed) + 1;
         if total % 1_000_000 == 0 {
-            println!("[ INFO] Total keys generated: {}m", total / 1_000_000);
+            log_info!("Total keys generated: {}m", total / 1_000_000);
         }
 
         if hashes.contains(&hash) {
-            println!(
-                "[ INFO] Found the key: {} - {}",
+            log_info!(
+                "Found the key: {} - {}",
                 address::to_str(hash),
                 secret_key.display_secret()
             );
         }
     }
 
-    println!("[ INFO] THREAD-{}: Stopping...", thread_id);
+    log_info!("THREAD-{}: Stopping...", thread_id);
 }

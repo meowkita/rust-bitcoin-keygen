@@ -9,6 +9,7 @@ use std::{
 
 mod address;
 mod keypair;
+mod macros;
 mod storage;
 mod worker;
 
@@ -17,14 +18,14 @@ fn main() {
         .nth(1)
         .and_then(|arg| arg.parse().ok())
         .unwrap_or(4);
-    println!("[ INFO] Using {} threads.", threads_amount);
+    log_info!("Using {} threads.", threads_amount);
 
     let hashes = storage::load_hashes("data/bitcoin.tsv");
     let counter = Arc::new(AtomicU64::new(0));
     let stop = Arc::new(AtomicBool::new(false));
     worker::register_graceful_shutdown(&stop);
 
-    println!("[ INFO] Starting key generation...");
+    log_info!("Starting key generation...");
     let mut handles = Vec::new();
     for i in 0..threads_amount {
         let stop = Arc::clone(&stop);
@@ -39,5 +40,5 @@ fn main() {
         handle.join().unwrap();
     }
 
-    println!("[ INFO] All threads stopped.");
+    log_info!("All threads has stopped.");
 }

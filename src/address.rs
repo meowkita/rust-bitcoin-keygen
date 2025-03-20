@@ -3,6 +3,8 @@ use ripemd::Ripemd160;
 use secp256k1::PublicKey;
 use sha2::{Digest, Sha256};
 
+use crate::log_error;
+
 pub fn generate(public_key: &PublicKey) -> [u8; 20] {
     let public_bytes = public_key.serialize();
     let sha256_hash = Sha256::digest(public_bytes);
@@ -15,8 +17,8 @@ pub fn to_hash(address: &str) -> Option<[u8; 20]> {
     let decoded = bs58::decode(address).into_vec().unwrap();
 
     if decoded.len() != 25 {
-        eprintln!(
-            "[ERROR] Hash length of the address {} is not 25 (actual {})",
+        log_error!(
+            "Hash length of the address {} is not 25 (actual {})",
             address,
             decoded.len()
         );
