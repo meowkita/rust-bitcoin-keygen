@@ -3,12 +3,15 @@ use std::{
     env,
     fs::OpenOptions,
     io::{BufRead, BufReader},
-    sync::Arc,
+    sync::{
+        Arc,
+        atomic::{AtomicU64, Ordering},
+    },
     thread::{self},
 };
 
 mod address;
-mod keygen;
+mod keypair;
 
 fn main() {
     let threads_amount: usize = env::args()
@@ -17,17 +20,31 @@ fn main() {
         .unwrap_or(4);
     println!("[ INFO] Using {} threads.", threads_amount);
 
-    let file = OpenOptions::new()
-        .read(true)
-        .open("data/bitcoin.tsv")
-        .unwrap();
+    let hashes = load_hashes("data/bitcoin.tsv");
+    let counter = Arc::new(AtomicU64::new(0));
+
+    println!("[ INFO] Starting key generation...");
+    let handles: Vec<_> = (0..threads_amount)
+        .map(|_| {
+            let hashes = Arc::clone(&hashes);
+            let counter = Arc::clone(&counter);
+            thread::spawn(move || spawn(hashes, counter))
+        })
+        .collect();
+
+    for handle in handles {
+        handle.join().unwrap();
+    }
+}
+
+fn load_hashes(path: &str) -> Arc<FxHashSet<[u8; 20]>> {
+    let file = OpenOptions::new().read(true).open(&path).unwrap();
     let reader = BufReader::new(file);
     let mut hashes = FxHashSet::default();
     let mut skipped = 0;
 
     println!("[ INFO] Loading hashes from a file...");
-    for line in reader.lines() {
-        let line = line.unwrap();
+    for line in reader.lines().flatten() {
         if line.starts_with("1") {
             let address = line.split("\t").nth(0).unwrap().trim();
             if let Some(hash) = address::to_hash(&address) {
@@ -38,46 +55,26 @@ fn main() {
         }
     }
 
-    let hashes = Arc::new(hashes);
-    println!(
-        "[ INFO] Loaded {} hashes (skipped {}).",
-        &hashes.len(),
-        skipped
-    );
+    println!("[ INFO] Loaded {} (skipped {}).", &hashes.len(), skipped);
+    Arc::new(hashes)
+}
 
-    println!("[ INFO] Generating private keys...");
-    let mut tasks = Vec::new();
-    for index in 0..threads_amount {
-        let hashes = Arc::clone(&hashes);
-        let task = thread::spawn(move || {
-            let mut generated = 0;
-            loop {
-                let (secret_key, public_key) = keygen::generate_keypair();
-                let hash = address::generate(&public_key);
+fn spawn(hashes: Arc<FxHashSet<[u8; 20]>>, counter: Arc<AtomicU64>) {
+    loop {
+        let (secret_key, public_key) = keypair::generate();
+        let hash = address::generate(&public_key);
 
-                generated = generated + 1;
-                if generated % 100_000 == 0 {
-                    println!(
-                        "[ INFO] Thread-{}: generated {}m keys.",
-                        index,
-                        f64::from(generated) / 100_000.0 / 10.0
-                    );
-                }
+        let total = counter.fetch_add(1, Ordering::Relaxed) + 1;
+        if total % 1_000_000 == 0 {
+            println!("[ INFO] Total keys generated: {}m", total / 1_000_000);
+        }
 
-                if hashes.contains(&hash) {
-                    println!(
-                        "[ INFO] Found the key: {} - {}",
-                        address::to_str(hash),
-                        secret_key.display_secret()
-                    );
-                }
-            }
-        });
-
-        tasks.push(task);
-    }
-
-    for task in tasks {
-        task.join().unwrap();
+        if hashes.contains(&hash) {
+            println!(
+                "[ INFO] Found the key: {} - {}",
+                address::to_str(hash),
+                secret_key.display_secret()
+            );
+        }
     }
 }
