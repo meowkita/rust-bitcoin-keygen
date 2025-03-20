@@ -196,7 +196,7 @@ dependencies = [
 
 [[package]]
 name = "rust-bitcoin-keygen"
-version = "0.1.0"
+version = "1.0.0"
 dependencies = [
  "base58",
  "bs58",

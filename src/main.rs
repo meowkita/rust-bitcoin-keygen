@@ -25,14 +25,15 @@ fn main() {
     worker::register_graceful_shutdown(&stop);
 
     println!("[ INFO] Starting key generation...");
-    let handles: Vec<_> = (0..threads_amount)
-        .map(|i| {
-            let stop = Arc::clone(&stop);
-            let hashes = Arc::clone(&hashes);
-            let counter = Arc::clone(&counter);
-            thread::spawn(move || worker::spawn(i, hashes, counter, stop))
-        })
-        .collect();
+    let mut handles = Vec::new();
+    for i in 0..threads_amount {
+        let stop = Arc::clone(&stop);
+        let hashes = Arc::clone(&hashes);
+        let counter = Arc::clone(&counter);
+        let handle = thread::spawn(move || worker::spawn(i, hashes, counter, stop));
+
+        handles.push(handle);
+    }
 
     for handle in handles {
         handle.join().unwrap();
