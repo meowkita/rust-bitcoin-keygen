@@ -22,27 +22,38 @@ fn main() {
         .open("data/bitcoin.tsv")
         .unwrap();
     let reader = BufReader::new(file);
-    let mut addresses = FxHashSet::default();
+    let mut hashes = FxHashSet::default();
+    let mut skipped = 0;
 
-    println!("[ INFO] Loading addresses from a file...");
+    println!("[ INFO] Loading hashes from a file...");
     for line in reader.lines() {
         let line = line.unwrap();
         if line.starts_with("1") {
-            addresses.insert(line);
+            let address = line.split("\t").nth(0).unwrap().trim();
+            if let Some(hash) = address::to_hash(&address) {
+                hashes.insert(hash);
+            } else {
+                skipped = skipped + 1;
+            }
         }
     }
 
-    let addresses = Arc::new(addresses);
+    let hashes = Arc::new(hashes);
+    println!(
+        "[ INFO] Loaded {} hashes (skipped {}).",
+        &hashes.len(),
+        skipped
+    );
 
     println!("[ INFO] Generating private keys...");
     let mut tasks = Vec::new();
     for index in 0..threads_amount {
-        let addresses = Arc::clone(&addresses);
+        let hashes = Arc::clone(&hashes);
         let task = thread::spawn(move || {
             let mut generated = 0;
             loop {
                 let (secret_key, public_key) = keygen::generate_keypair();
-                let address = address::generate_address(&public_key);
+                let hash = address::generate(&public_key);
 
                 generated = generated + 1;
                 if generated % 100_000 == 0 {
@@ -53,10 +64,10 @@ fn main() {
                     );
                 }
 
-                if addresses.contains(&address) {
+                if hashes.contains(&hash) {
                     println!(
                         "[ INFO] Found the key: {} - {}",
-                        address,
+                        address::to_str(hash),
                         secret_key.display_secret()
                     );
                 }
