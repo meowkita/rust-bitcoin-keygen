@@ -1,8 +1,21 @@
 use bech32::FromBase32;
+use ripemd::Ripemd160;
+use secp256k1::PublicKey;
+use sha2::{Digest, Sha256};
 
 mod test;
 
-pub fn from(address: &str) -> Result<[u8; 20], String> {
+pub fn from_key(public_key: &PublicKey) -> Result<[u8; 20], String> {
+    let public_bytes = public_key.serialize();
+    let sha256_hash = Sha256::digest(public_bytes);
+    let public_hash = Ripemd160::digest(sha256_hash);
+
+    Ok(public_hash
+        .try_into()
+        .map_err(|_| "Address decode error.")?)
+}
+
+pub fn from_address(address: &str) -> Result<[u8; 20], String> {
     if address.starts_with("1") {
         return p2pkh(address);
     }

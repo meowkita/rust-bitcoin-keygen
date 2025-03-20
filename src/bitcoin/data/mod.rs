@@ -31,5 +31,5 @@ pub fn from() -> Result<Arc<FxHashSet<[u8; 20]>>, String> {
 
 fn parse_line(line: &str) -> Result<[u8; 20], String> {
     let address = line.split("\t").nth(0).unwrap();
-    hash::from(address)
+    hash::from_address(address)
 }
