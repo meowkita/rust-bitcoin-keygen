@@ -6,7 +6,7 @@ use std::{
     sync::Arc,
 };
 
-pub fn from() -> Result<Arc<FxHashSet<[u8; 20]>>, String> {
+pub fn load() -> Result<Arc<FxHashSet<[u8; 20]>>, String> {
     let file = OpenOptions::new()
         .read(true)
         .open("data/bitcoin.tsv")
