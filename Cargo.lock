@@ -3,10 +3,10 @@
 version = 4
 
 [[package]]
-name = "base58"
-version = "0.2.0"
+name = "bech32"
+version = "0.9.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6107fe1be6682a68940da878d9e9f5e90ca5745b3dec9fd1bb393c8777d4f581"
+checksum = "d86b93f97252c47b41663388e6d155714a9d0c398b99f1005cbc5f978b29f445"
 
 [[package]]
 name = "bitflags"
@@ -198,7 +198,7 @@ dependencies = [
 name = "rust-bitcoin-keygen"
 version = "1.0.1"
 dependencies = [
- "base58",
+ "bech32",
  "bs58",
  "ctrlc",
  "ripemd",
