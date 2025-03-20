@@ -57,7 +57,9 @@ cargo run --release <THREADS>
 
 ## 🏆 **Planned Features**
 🔹 **Ethereum and other chains address generation & brute-force search**.
+
 🔹 **GPU acceleration for key generation**.
+
 🔹 **Notification system (Telegram, Discord etc)**.
 
 ## ⚠️ **Legal Disclaimer**
