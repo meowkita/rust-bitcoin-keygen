@@ -2,7 +2,7 @@ use bech32::FromBase32;
 
 mod test;
 
-pub fn address_to_hash(address: &str) -> Result<[u8; 20], String> {
+pub fn from(address: &str) -> Result<[u8; 20], String> {
     if address.starts_with("1") {
         return p2pkh(address);
     }

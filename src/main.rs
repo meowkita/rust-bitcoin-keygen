@@ -1,9 +1,9 @@
-// File -> Parse Address (check for p2pkh or p2wpkh) -> Hash +
-//                                                           |-> Compare -> Hash to address -> Output Key
-//                                   Generate -> Key -> Hash +
-//
-
 mod bitcoin;
 mod macros;
 
-fn main() {}
+fn main() {
+    match bitcoin::data::from() {
+        Ok(_) => println!("File loaded!"),
+        Err(error) => eprintln!("{error}"),
+    }
+}
