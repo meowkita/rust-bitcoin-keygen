@@ -1,6 +1,9 @@
 use std::{
     env,
-    sync::{Arc, atomic::AtomicU64},
+    sync::{
+        Arc,
+        atomic::{AtomicBool, AtomicU64},
+    },
     thread::{self},
 };
 
@@ -18,17 +21,22 @@ fn main() {
 
     let hashes = storage::load_hashes("data/bitcoin.tsv");
     let counter = Arc::new(AtomicU64::new(0));
+    let stop = Arc::new(AtomicBool::new(false));
+    worker::register_graceful_shutdown(&stop);
 
     println!("[ INFO] Starting key generation...");
     let handles: Vec<_> = (0..threads_amount)
-        .map(|_| {
+        .map(|i| {
+            let stop = Arc::clone(&stop);
             let hashes = Arc::clone(&hashes);
             let counter = Arc::clone(&counter);
-            thread::spawn(move || worker::spawn(hashes, counter))
+            thread::spawn(move || worker::spawn(i, hashes, counter, stop))
         })
         .collect();
 
     for handle in handles {
         handle.join().unwrap();
     }
+
+    println!("[ INFO] All threads stopped.");
 }

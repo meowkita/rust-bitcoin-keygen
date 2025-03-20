@@ -1,13 +1,28 @@
 use rustc_hash::FxHashSet;
 use std::sync::{
     Arc,
-    atomic::{AtomicU64, Ordering},
+    atomic::{AtomicBool, AtomicU64, Ordering},
 };
 
 use crate::{address, keypair};
 
-pub fn spawn(hashes: Arc<FxHashSet<[u8; 20]>>, counter: Arc<AtomicU64>) {
-    loop {
+pub fn register_graceful_shutdown(stop_flag: &Arc<AtomicBool>) {
+    let stop_flag = Arc::clone(&stop_flag);
+
+    ctrlc::set_handler(move || {
+        println!("[ INFO] Received shutdown signal...");
+        stop_flag.store(true, Ordering::Relaxed);
+    })
+    .expect("[ERROR] Failed to set a Ctrl+C handler");
+}
+
+pub fn spawn(
+    thread_id: usize,
+    hashes: Arc<FxHashSet<[u8; 20]>>,
+    counter: Arc<AtomicU64>,
+    stop: Arc<AtomicBool>,
+) {
+    while !stop.load(Ordering::Relaxed) {
         let (secret_key, public_key) = keypair::generate();
         let hash = address::generate(&public_key);
 
@@ -24,4 +39,6 @@ pub fn spawn(hashes: Arc<FxHashSet<[u8; 20]>>, counter: Arc<AtomicU64>) {
             );
         }
     }
+
+    println!("[ INFO] THREAD-{}: Stopping...", thread_id);
 }
