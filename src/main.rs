@@ -1,4 +1,4 @@
-use std::env;
+use std::{env, u64};
 
 mod bitcoin;
 mod macros;
@@ -10,5 +10,11 @@ fn main() {
         .unwrap_or(4);
     log_info!("Using {} threads.", threads_amount);
 
-    bitcoin::init(threads_amount).unwrap();
+    let max_hashes: u64 = env::args()
+        .nth(2)
+        .and_then(|arg| arg.parse().ok())
+        .unwrap_or(u64::MAX);
+    log_info!("Storing max {} hashes.", max_hashes);
+
+    bitcoin::init(threads_amount, max_hashes).unwrap();
 }

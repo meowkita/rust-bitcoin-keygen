@@ -6,7 +6,7 @@ use std::{
     sync::Arc,
 };
 
-pub fn load() -> Result<Arc<FxHashSet<[u8; 20]>>, String> {
+pub fn load(max_hashes: u64) -> Result<Arc<FxHashSet<[u8; 20]>>, String> {
     let file = OpenOptions::new()
         .read(true)
         .open("data/bitcoin.tsv")
@@ -14,11 +14,17 @@ pub fn load() -> Result<Arc<FxHashSet<[u8; 20]>>, String> {
     let buffer = BufReader::new(file);
     let mut hashes = FxHashSet::default();
     let mut skipped = 0;
+    let mut loaded = 0;
 
     log_info!("Loading hashes from a file...");
     for line in buffer.lines().flatten() {
+        if loaded >= max_hashes {
+            break;
+        }
+
         if let Ok(address) = parse_line(&line) {
             hashes.insert(address);
+            loaded = loaded + 1;
             continue;
         }
 

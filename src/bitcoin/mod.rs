@@ -13,8 +13,8 @@ pub mod hash;
 pub mod keypair;
 pub mod worker;
 
-pub fn init(threads_amount: usize) -> Result<(), String> {
-    let hashes = data::load()?;
+pub fn init(threads_amount: usize, max_hashes: u64) -> Result<(), String> {
+    let hashes = data::load(max_hashes)?;
     let counter = Arc::new(AtomicU64::new(0));
     let stop = Arc::new(AtomicBool::new(false));
     worker::register_graceful_shutdown(&stop);
