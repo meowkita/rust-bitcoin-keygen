@@ -30,9 +30,10 @@ cargo build --release
 
 ### 3️⃣ **Run the Key Generator**
 ```bash
-cargo run --release <THREADS>
+cargo run --release <THREADS> <HASH_CAP>
 ```
 - `<THREADS>` = Number of threads to use (e.g., `4`, `8`, `16`).
+- `<HASH_CAP>` = Number of hashes to load from a file (default is `u64::MAX`).
 
 ## ⚙️ **How It Works**
 1. **Loads a database of Bitcoin addresses** from `data/bitcoin.tsv` (not included in the repository, can be found [here](https://privatekeyfinder.io/download/)).
