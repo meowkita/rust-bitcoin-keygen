@@ -7,9 +7,13 @@ Designed for efficiency, using **multi-threading** and optimized **hash storage*
 
 ## 📌 **Features**
 ✅ **Generates Bitcoin private keys** and corresponding public addresses.
+
 ✅ **Supports multiple address types** (P2PKH, P2WPKH).
+
 ✅ **Multi-threaded execution** for high-speed key generation.
+
 ✅ **Efficient memory usage** (stores only 20-byte hashes instead of full addresses).
+
 ✅ **Fast hash lookup** using `rustc_hash::FxHashSet`.
 
 ## 🔧 **Installation**
