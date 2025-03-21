@@ -35,7 +35,7 @@ cargo run --release <THREADS>
 - `<THREADS>` = Number of threads to use (e.g., `4`, `8`, `16`).
 
 ## ⚙️ **How It Works**
-1. **Loads a database of Bitcoin addresses** from `data/bitcoin.tsv` (not included in the repository).
+1. **Loads a database of Bitcoin addresses** from `data/bitcoin.tsv` (not included in the repository, can be found [here](https://privatekeyfinder.io/download/)).
 2. **Generates random private keys** and derives public keys.
 3. **Creates P2PKH and P2WPKH hashes** from the public key.
 4. **Checks if the generated address exists** in the preloaded database.
