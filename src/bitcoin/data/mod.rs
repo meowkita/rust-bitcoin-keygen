@@ -6,11 +6,13 @@ use std::{
     sync::Arc,
 };
 
-pub fn load(max_hashes: u64) -> Result<Arc<FxHashSet<[u8; 20]>>, String> {
+mod test;
+
+pub fn load(path: &str, max_hashes: u64) -> Result<Arc<FxHashSet<[u8; 20]>>, String> {
     let file = OpenOptions::new()
         .read(true)
-        .open("data/bitcoin.tsv")
-        .map_err(|_| "Failed to open 'data/bitcoin.tsv'")?;
+        .open(&path)
+        .map_err(|_| "Failed to open file.")?;
     let buffer = BufReader::new(file);
     let mut hashes = FxHashSet::default();
     let mut skipped = 0;
