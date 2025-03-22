@@ -12,10 +12,10 @@ pub fn p2pkh(hash: &[u8; 20]) -> String {
 
     bs58::encode(address).into_string()
 }
-pub fn p2wpkh(hash: &[u8; 20]) -> String {
-    let mut data = vec![0u8];
-    data.extend_from_slice(hash);
 
-    let hash5 = data.to_base32();
-    bech32::encode("bc", hash5, Variant::Bech32).unwrap()
+pub fn p2wpkh(hash: &[u8; 20]) -> String {
+    let mut data = vec![bech32::u5::try_from_u8(0).unwrap()];
+    data.extend_from_slice(&hash.to_base32());
+
+    bech32::encode("bc", data, Variant::Bech32).unwrap()
 }
